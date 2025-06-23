@@ -12,6 +12,9 @@ class HabitListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Habit.objects.filter(user=self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class HabitRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HabitSerializer
