@@ -7,6 +7,13 @@ from .paginators import HabitPaginator
 from .serializers import HabitSerializer
 
 
+class PublicHabitListAPIView(generics.ListAPIView):
+    serializer_class = HabitSerializer
+    pagination_class = HabitPaginator
+
+    queryset = Habit.objects.filter(is_public=True)
+
+
 class HabitListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = HabitSerializer
     pagination_class = HabitPaginator
