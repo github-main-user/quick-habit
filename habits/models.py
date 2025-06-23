@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class Habit(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="habits")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="habits")
     place = models.CharField(max_length=255)
     time = models.DateTimeField()
     action = models.CharField(max_length=255)
@@ -20,7 +20,7 @@ class Habit(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["user"]),
+            models.Index(fields=["owner"]),
             models.Index(fields=["is_pleasant"]),
             models.Index(fields=["is_public"]),
         ]
