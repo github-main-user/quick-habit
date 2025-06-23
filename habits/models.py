@@ -7,7 +7,7 @@ User = get_user_model()
 class Habit(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="habits")
     place = models.CharField(max_length=255)
-    time = models.DateTimeField()
+    time = models.TimeField()
     action = models.CharField(max_length=255)
     is_pleasant = models.BooleanField(default=False)
     related_habit = models.ForeignKey(
