@@ -19,4 +19,5 @@ urlpatterns = [
     path("api/redoc/", SpectacularRedocView.as_view(), name="redoc"),
     # apps
     path("api/habits/", include("habits.urls", namespace="habits")),
+    path("api/users/", include("users.urls", namespace="users")),
 ]
