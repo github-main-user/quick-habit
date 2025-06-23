@@ -8,13 +8,19 @@ from .serializers import HabitSerializer
 
 
 class PublicHabitListAPIView(generics.ListAPIView):
+    """List endpoint for public habits."""
+
     serializer_class = HabitSerializer
     pagination_class = HabitPaginator
-
     queryset = Habit.objects.filter(is_public=True)
 
 
 class HabitListCreateAPIView(generics.ListCreateAPIView):
+    """
+    List/Create endpoint for habits.
+    Returns only habits that belong to curent user.
+    """
+
     serializer_class = HabitSerializer
     pagination_class = HabitPaginator
 
@@ -26,6 +32,11 @@ class HabitListCreateAPIView(generics.ListCreateAPIView):
 
 
 class HabitRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve/Update/Destroy endpoint for user's habits.
+    Allows performing actions only if user is owner of object.
+    """
+
     serializer_class = HabitSerializer
 
     queryset = Habit.objects.all()
