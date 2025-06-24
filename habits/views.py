@@ -25,7 +25,7 @@ class HabitListCreateAPIView(generics.ListCreateAPIView):
     pagination_class = HabitPaginator
 
     def get_queryset(self):
-        return Habit.objects.filter(user=self.request.user)
+        return Habit.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
