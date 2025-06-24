@@ -27,3 +27,17 @@ class Habit(models.Model):
 
     def __str__(self) -> str:
         return f"{self.action} at {self.time} in {self.place}"
+
+
+class HabitNotification(models.Model):
+    habit = models.ForeignKey(
+        Habit, on_delete=models.CASCADE, related_name="notifications"
+    )
+    date = models.DateField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["habit", "date"], name="unique_notification_for_date"
+            )
+        ]
