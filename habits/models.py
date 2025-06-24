@@ -26,4 +26,4 @@ class Habit(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.action} at {self.place} at {self.time}"
+        return f"{self.action} at {self.time} in {self.place}"
