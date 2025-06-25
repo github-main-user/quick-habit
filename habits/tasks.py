@@ -18,7 +18,7 @@ def check_habits() -> None:
     """
 
     now = timezone.now()
-    habits = Habit.objects.filter(time__le=now.time())
+    habits = Habit.objects.filter(time__lte=now.time())
 
     for habit in habits:
         last_notification = habit.notifications.order_by("-date").first()
