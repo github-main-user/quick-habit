@@ -1,5 +1,9 @@
+import logging
+
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 def send_telegram_message(chat_id: int, text: str) -> None:
@@ -10,6 +14,10 @@ def send_telegram_message(chat_id: int, text: str) -> None:
     """
 
     token = settings.TELEGRAM_BOT_TOKEN
+    if not token:
+        logger.error("TELEGRAM_BOT_TOKEN isn't set, can't send the message")
+        return
+
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {"chat_id": chat_id, "text": text}
 
