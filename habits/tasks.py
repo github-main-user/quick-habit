@@ -42,11 +42,11 @@ def check_habits() -> None:
             send_telegram_message(chat_id, message)
         except HTTPError as e:
             logger.error(
-                f"Failed to send Telegram message to user %s: %s", habit.owner, e
+                "Failed to send Telegram message to user %s: %s", habit.owner, e
             )
         else:
             logger.info(
-                f"Sent reminder to user %s for habit %s at %s",
+                "Sent reminder to user %s for habit %s at %s",
                 habit.owner,
                 habit.action,
                 now,
