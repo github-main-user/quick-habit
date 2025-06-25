@@ -1,8 +1,42 @@
+from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .models import User
+
+
+class UserManagerTest(TestCase):
+    def test_create_user_success(self):
+        user = User.objects.create_user(
+            email="test@example.com", password="testpass123"
+        )
+        self.assertEqual(user.email, "test@example.com")
+        self.assertTrue(user.check_password("testpass123"))
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+
+    def test_create_user_without_email_raises_error(self):
+        with self.assertRaises(ValueError):
+            User.objects.create_user(email=None, password="testpass123")
+
+    def test_create_superuser_success(self):
+        admin = User.objects.create_superuser(
+            email="admin@example.com", password="adminpass"
+        )
+        self.assertTrue(admin.is_staff)
+        self.assertTrue(admin.is_superuser)
+
+    def test_create_superuser_with_wrong_flags_raises_error(self):
+        with self.assertRaises(ValueError):
+            User.objects.create_superuser(
+                email="badadmin@example.com", password="adminpass", is_staff=False
+            )
+
+        with self.assertRaises(ValueError):
+            User.objects.create_superuser(
+                email="badadmin2@example.com", password="adminpass", is_superuser=False
+            )
 
 
 class UserAPITest(APITestCase):
