@@ -9,6 +9,9 @@ class UserAPITest(APITestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(email="test@test.com", password="test")
 
+    def authenticate(self, user) -> None:
+        self.client.force_authenticate(user)
+
     # registration
 
     def test_registration_success(self) -> None:
@@ -75,3 +78,40 @@ class UserAPITest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertFalse(response.data.get("access"))
+
+    # me/ retrieve
+
+    def test_retrieve_me_unauthenticated(self) -> None:
+        response = self.client.get(reverse("users:me"))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_retrieve_me_owner(self) -> None:
+        self.authenticate(self.user)
+        response = self.client.patch(reverse("users:me"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("email"), self.user.email)
+
+    # me/ update
+
+    def test_update_me_unauthenticated(self) -> None:
+        response = self.client.patch(reverse("users:me"), {"email": "new@email.com"})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_me_owner(self) -> None:
+        self.authenticate(self.user)
+        response = self.client.patch(reverse("users:me"), {"email": "new@email.com"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "new@email.com")
+
+    # me/ delete
+
+    def test_delete_me_unauthenticated(self) -> None:
+        response = self.client.delete(reverse("users:me"))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_me_owner(self) -> None:
+        self.authenticate(self.user)
+        response = self.client.delete(reverse("users:me"))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(User.objects.filter(id=self.user.id).exists())
