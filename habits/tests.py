@@ -1,15 +1,18 @@
+from datetime import timedelta
 from unittest.mock import Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from requests import HTTPError
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from habits.services import send_telegram_message
+from habits.tasks import check_habits
 
-from .models import Habit
+from .models import Habit, HabitNotification
 
 User = get_user_model()
 
@@ -342,3 +345,46 @@ class SendTelegramMessageTest(TestCase):
 
         with self.assertRaises(HTTPError):
             send_telegram_message(123456, "test message")
+
+
+class CheckHabitsTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email="test@test.com", telegram_chat_id=123456)
+        self.habit = Habit.objects.create(
+            owner=self.user,
+            action="Drink water",
+            place="Kitchen",
+            time=(timezone.now() - timedelta(minutes=1)).time(),  # time before now
+            frequency=1,
+            execution_time=30,
+        )
+
+    @patch("habits.tasks.send_telegram_message")
+    def test_sends_reminder_and_creates_notification(self, mock_send: Mock) -> None:
+        check_habits()
+        mock_send.assert_called_once()
+        self.assertEqual(HabitNotification.objects.count(), 1)
+
+    @patch("habits.tasks.send_telegram_message")
+    def test_skips_if_recent_notification_exists(self, mock_send: Mock) -> None:
+        HabitNotification.objects.create(habit=self.habit, date=timezone.now().date())
+        check_habits()
+
+        mock_send.assert_not_called()
+        self.assertEqual(HabitNotification.objects.count(), 1)
+
+    @patch("habits.tasks.send_telegram_message")
+    def test_skips_if_user_has_no_telegram_chat_id(self, mock_send: Mock) -> None:
+        self.user.telegram_chat_id = None
+        self.user.save()
+        check_habits()
+
+        mock_send.assert_not_called()
+        self.assertEqual(HabitNotification.objects.count(), 0)
+
+    @patch("habits.tasks.send_telegram_message", side_effect=HTTPError("Bad request"))
+    def test_does_not_create_notification_of_exception(self, mock_send: Mock) -> None:
+        check_habits()
+
+        mock_send.assert_called_once()
+        self.assertEqual(HabitNotification.objects.count(), 0)
