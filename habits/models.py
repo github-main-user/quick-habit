@@ -11,12 +11,27 @@ class Habit(models.Model):
     action = models.CharField(max_length=255)
     is_pleasant = models.BooleanField(default=False)
     related_habit = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, blank=True, null=True
+        "self",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        help_text="Related pleasant habit (can't be used if reward is set)",
     )
-    frequency = models.PositiveSmallIntegerField(default=1)
-    reward = models.CharField(max_length=255, blank=True, null=True)
-    execution_time = models.PositiveSmallIntegerField()
-    is_public = models.BooleanField(default=False)
+    frequency = models.PositiveSmallIntegerField(
+        default=1, help_text="Frequency of habit execution in days"
+    )
+    reward = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Rewad for completing the habit (can't be used with related habit)",
+    )
+    execution_time = models.PositiveSmallIntegerField(
+        help_text="Execution time in seconds (<=120s)"
+    )
+    is_public = models.BooleanField(
+        default=False, help_text="Public habits can be seen by all users"
+    )
 
     class Meta:
         ordering = ("time",)
