@@ -8,7 +8,7 @@ class RegisterView(generics.CreateAPIView):
     """Endpoint for user registration."""
 
     serializer_class = RegisterSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
 
 class MeView(generics.RetrieveUpdateDestroyAPIView):

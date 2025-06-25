@@ -5,7 +5,7 @@ from .models import Habit
 
 @admin.register(Habit)
 class HabitAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "owner",
         "place",
         "time",
@@ -13,6 +13,6 @@ class HabitAdmin(admin.ModelAdmin):
         "is_pleasant",
         "execution_time",
         "is_public",
-    ]
-    list_filter = ["owner", "is_pleasant", "is_public"]
-    search_fields = ["place", "time", "action"]
+    )
+    list_filter = ("owner", "is_pleasant", "is_public")
+    search_fields = ("place", "time", "action")

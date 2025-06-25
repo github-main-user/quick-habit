@@ -19,12 +19,12 @@ class Habit(models.Model):
     is_public = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ["time"]
-        indexes = [
+        ordering = ("time",)
+        indexes = (
             models.Index(fields=["owner"]),
             models.Index(fields=["is_pleasant"]),
             models.Index(fields=["is_public"]),
-        ]
+        )
 
     def __str__(self) -> str:
         return f"{self.action} at {self.time} in {self.place}"
@@ -37,8 +37,8 @@ class HabitNotification(models.Model):
     date = models.DateField()
 
     class Meta:
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
-                fields=["habit", "date"], name="unique_notification_for_date"
-            )
-        ]
+                fields=("habit", "date"), name="unique_notification_for_date"
+            ),
+        )
