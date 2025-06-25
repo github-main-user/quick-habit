@@ -2,7 +2,7 @@ import logging
 
 from celery import shared_task
 from django.utils import timezone
-from requests.exceptions import RequestException
+from requests.exceptions import HTTPError
 
 from .models import Habit, HabitNotification
 from .services import send_telegram_message
@@ -40,7 +40,7 @@ def check_habits() -> None:
 
         try:
             send_telegram_message(chat_id, message)
-        except RequestException as e:
+        except HTTPError as e:
             logger.error(
                 f"Failed to send Telegram message to user %s: %s", habit.owner, e
             )
