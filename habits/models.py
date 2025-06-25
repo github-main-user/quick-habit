@@ -19,6 +19,7 @@ class Habit(models.Model):
     is_public = models.BooleanField(default=False)
 
     class Meta:
+        ordering = ["time"]
         indexes = [
             models.Index(fields=["owner"]),
             models.Index(fields=["is_pleasant"]),
