@@ -1,7 +1,13 @@
+from unittest.mock import Mock, patch
+
 from django.contrib.auth import get_user_model
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from requests import HTTPError
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from habits.services import send_telegram_message
 
 from .models import Habit
 
@@ -302,3 +308,37 @@ class HabitAPITest(APITestCase):
         )
         self.assertEqual(reponse.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Habit.objects.filter(id=self.pleasant.id).exists())
+
+
+class SendTelegramMessageTest(TestCase):
+    @override_settings(TELEGRAM_BOT_TOKEN="dummy_token")
+    @patch("habits.services.requests.post")
+    def test_send_message_successfully(self, mock_post: Mock) -> None:
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+
+        send_telegram_message(123456, "test message")
+
+        mock_post.assert_called_once_with(
+            "https://api.telegram.org/botdummy_token/sendMessage",
+            {"chat_id": 123456, "text": "test message"},
+        )
+        mock_response.raise_for_status.assert_called_once()
+
+    @override_settings(TELEGRAM_BOT_TOKEN=None)
+    @patch("habits.services.requests.post")
+    def test_does_nothing_with_missing_token(self, mock_post: Mock) -> None:
+        send_telegram_message(123456, "test message")
+
+        mock_post.assert_not_called()
+
+    @override_settings(TELEGRAM_BOT_TOKEN="dummy_token")
+    @patch("habits.services.requests.post")
+    def test_raises_on_bad_status(self, mock_post: Mock) -> None:
+        mock_response = Mock()
+        mock_response.raise_for_status.side_effect = HTTPError("Bad Request")
+        mock_post.return_value = mock_response
+
+        with self.assertRaises(HTTPError):
+            send_telegram_message(123456, "test message")
