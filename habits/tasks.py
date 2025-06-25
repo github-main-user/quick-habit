@@ -28,7 +28,7 @@ def check_habits() -> None:
             if days_since_last < habit.frequency:
                 continue
 
-        chat_id = habit.owner.chat_id
+        chat_id = habit.owner.telegram_chat_id
         if not chat_id:
             continue
 
