@@ -18,7 +18,11 @@ def check_habits() -> None:
     """
 
     now = timezone.now()
-    habits = Habit.objects.filter(time__lte=now.time())
+    habits = (
+        Habit.objects.filter(time__lte=now.time())
+        .select_related("owner")
+        .prefetch_related("notifications")
+    )
 
     for habit in habits:
         last_notification = habit.notifications.order_by("-date").first()
