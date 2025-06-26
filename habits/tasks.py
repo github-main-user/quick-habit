@@ -30,10 +30,17 @@ def check_habits() -> None:
         if last_notification:
             days_since_last = (now.date() - last_notification.date).days
             if days_since_last < habit.frequency:
+                logger.debug(
+                    "Skipping habit %s (frequency %s): last notification %s days ago",
+                    habit,
+                    habit.frequency,
+                    days_since_last,
+                )
                 continue
 
         chat_id = habit.owner.telegram_chat_id
         if not chat_id:
+            logger.debug("Skipping user %s: doesn't have telegram chat id", habit.owner)
             continue
 
         message = (
